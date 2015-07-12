@@ -12,6 +12,7 @@ TARGET = 'Back-Up Utility'
 
 TEMPLATE = app
 
+RC_ICONS = 'Icons\File Cabinet\1436739877_Card_file.ico'
 
 SOURCES += main.cpp \
     mainwindow.cpp \

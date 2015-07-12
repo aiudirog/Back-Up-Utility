@@ -1,6 +1,7 @@
 #ifndef BACKUPTHREAD_H
 #define BACKUPTHREAD_H
 
+#include <QObject>
 #include <QThread>
 #include <QSettings>
 
