@@ -1,0 +1,11 @@
+<RCC>
+    <qresource prefix="/Icons">
+        <file>Icons/File Cabinet/1434274276_Card_file.png</file>
+        <file>Icons/File Cabinet/1434274312_Card_file.png</file>
+        <file>Icons/File Cabinet/1434274439_Card_file.png</file>
+        <file>Icons/File Cabinet/1434274448_Card_file.png</file>
+        <file>Icons/File Cabinet/1434274453_Card_file.png</file>
+        <file>Icons/File Cabinet/1434274458_Card_file.png</file>
+        <file>Icons/File Cabinet/1434274463_Card_file.png</file>
+    </qresource>
+</RCC>
