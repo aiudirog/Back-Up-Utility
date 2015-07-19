@@ -48,6 +48,13 @@ void BackUpThread::set_arguments(QList<QString> org_dirs, QString new_dir) {
 
 int BackUpThread::count_files(QString directory) {
     int num_of_files = 0;
+    // First count the files that are in the current directory
+    QDirIterator current_dir_files(directory, QDir::Files | QDir::NoDotAndDotDot);
+    while (current_dir_files.hasNext()) {
+        current_dir_files.next();
+        num_of_files++;
+    }
+    // Now count the files for all subdirectories
     QDirIterator count_dirs(directory, QDir::Dirs | QDir::NoDotAndDotDot, QDirIterator::Subdirectories);
     while (count_dirs.hasNext()) {
         QDirIterator files(count_dirs.next(), QDir::Files | QDir::NoDotAndDotDot);
@@ -60,6 +67,24 @@ int BackUpThread::count_files(QString directory) {
 }
 
 void BackUpThread::backup_modified_files(QString org_dir, QString new_dir, int *total_files, int *processed_files) {
+    // Back-Up files in current directory
+    QDirIterator current_dir_files(org_dir, QDir::Files | QDir::NoDotAndDotDot);
+    while (current_dir_files.hasNext()) {
+        QString next_file = current_dir_files.next();
+        QString next_file_copy = QString::fromUtf16(next_file.utf16());
+        next_file_copy.replace(org_dir, new_dir);
+        if (!QFile::exists(next_file_copy)) {
+            QFile::copy(next_file, next_file_copy);
+            output("Creating back-up of: "+next_file);
+        } else if (QFileInfo(next_file).lastModified() > QFileInfo(next_file_copy).lastModified()) {
+            QFile::remove(next_file_copy);
+            QFile::copy(next_file, next_file_copy);
+            output("Updating back-up of: "+next_file);
+        }
+        (*processed_files)++;
+        update_progress(total_files, processed_files);
+    }
+    // Back-Up files in subdirectories
     QDirIterator dirs(org_dir, QDir::Dirs | QDir::NoDotAndDotDot, QDirIterator::Subdirectories);
     while (dirs.hasNext()) {
         QString next = dirs.next();
@@ -88,6 +113,16 @@ void BackUpThread::backup_modified_files(QString org_dir, QString new_dir, int *
 }
 
 void BackUpThread::remove_deleted_files(QString org_dir, QString new_dir) {
+    QDirIterator current_copy_dir_files(new_dir, QDir::Files | QDir::NoDotAndDotDot);
+    while (current_copy_dir_files.hasNext()) {
+        QString next_file = current_copy_dir_files.next();
+        QString next_file_org = QString::fromUtf16(next_file.utf16());
+        next_file_org.replace(new_dir, org_dir);
+        if (!QFile::exists(next_file_org)) {
+            QFile::remove(next_file);
+            output("Removing: "+next_file);
+        }
+    }
     QDirIterator copy_dirs(new_dir, QDir::Dirs | QDir::NoDotAndDotDot, QDirIterator::Subdirectories);
     while (copy_dirs.hasNext()) {
         QString next = copy_dirs.next();
@@ -123,3 +158,4 @@ void BackUpThread::output(QString string) {
 bool BackUpThread::is_running() {
     return BackUpThread::running;
 }
+
